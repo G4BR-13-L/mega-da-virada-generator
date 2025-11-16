@@ -1,0 +1,22 @@
+CREATE INDEX IF NOT EXISTS idx_h_bola_1 ON t_historico_mega_sena(bola_1);
+CREATE INDEX IF NOT EXISTS idx_h_bola_2 ON t_historico_mega_sena(bola_2);
+CREATE INDEX IF NOT EXISTS idx_h_bola_3 ON t_historico_mega_sena(bola_3);
+CREATE INDEX IF NOT EXISTS idx_h_bola_4 ON t_historico_mega_sena(bola_4);
+CREATE INDEX IF NOT EXISTS idx_h_bola_5 ON t_historico_mega_sena(bola_5);
+CREATE INDEX IF NOT EXISTS idx_h_bola_6 ON t_historico_mega_sena(bola_6);
+
+CREATE INDEX IF NOT EXISTS idx_h_bola_1 ON t_historico_lotofacil(bola_1);
+CREATE INDEX IF NOT EXISTS idx_h_bola_2 ON t_historico_lotofacil(bola_2);
+CREATE INDEX IF NOT EXISTS idx_h_bola_3 ON t_historico_lotofacil(bola_3);
+CREATE INDEX IF NOT EXISTS idx_h_bola_4 ON t_historico_lotofacil(bola_4);
+CREATE INDEX IF NOT EXISTS idx_h_bola_5 ON t_historico_lotofacil(bola_5);
+CREATE INDEX IF NOT EXISTS idx_h_bola_6 ON t_historico_lotofacil(bola_6);
+CREATE INDEX IF NOT EXISTS idx_h_bola_7 ON t_historico_lotofacil(bola_7);
+CREATE INDEX IF NOT EXISTS idx_h_bola_8 ON t_historico_lotofacil(bola_8);
+CREATE INDEX IF NOT EXISTS idx_h_bola_9 ON t_historico_lotofacil(bola_9);
+CREATE INDEX IF NOT EXISTS idx_h_bola_10 ON t_historico_lotofacil(bola_10);
+CREATE INDEX IF NOT EXISTS idx_h_bola_11 ON t_historico_lotofacil(bola_11);
+CREATE INDEX IF NOT EXISTS idx_h_bola_12 ON t_historico_lotofacil(bola_12);
+CREATE INDEX IF NOT EXISTS idx_h_bola_13 ON t_historico_lotofacil(bola_13);
+CREATE INDEX IF NOT EXISTS idx_h_bola_14 ON t_historico_lotofacil(bola_14);
+CREATE INDEX IF NOT EXISTS idx_h_bola_15 ON t_historico_lotofacil(bola_15);

@@ -86,32 +86,3 @@ pub fn run_migrations(conn: &Connection) -> Result<()> {
 
     Ok(())
 }
-
-pub fn ensure_historico_table(conn: &Connection) -> Result<()> {
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS t_historico_mega_sena (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            concurso INTEGER NOT NULL,
-            data TEXT NOT NULL,
-            bola_1 INTEGER, bola_2 INTEGER, bola_3 INTEGER,
-            bola_4 INTEGER, bola_5 INTEGER, bola_6 INTEGER,
-            inserted_at TEXT DEFAULT (datetime('now'))
-        )",
-        [],
-    )?;
-    Ok(())
-}
-
-/// Cria tabela para jogos gerados (t_generated_games)
-pub fn ensure_generated_table(conn: &Connection) -> Result<()> {
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS t_generated_games (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            n1 INTEGER NOT NULL, n2 INTEGER NOT NULL, n3 INTEGER NOT NULL,
-            n4 INTEGER NOT NULL, n5 INTEGER NOT NULL, n6 INTEGER NOT NULL,
-            created_at TEXT DEFAULT (datetime('now'))
-        )",
-        [],
-    )?;
-    Ok(())
-}

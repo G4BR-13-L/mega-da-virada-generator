@@ -40,6 +40,21 @@ pub fn generate_and_store_game(conn: &Connection) -> Result<MegaSena> {
     Ok(jogo)
 }
 
+pub fn generate_mega_sena(conn: &Connection) -> Result<MegaSena> {
+    let mut rng = rand::thread_rng();
+    let mut numbers: Vec<i64> = (1..=60)
+        .choose_multiple(&mut rng, 6)
+        .into_iter()
+        .map(|n| n as i64)
+        .collect();
+    numbers.sort_unstable();
+
+    Ok(MegaSena {
+        id: 2025,
+        jogo: numbers,
+    })
+}
+
 /// Consulta um jogo gerado pelo id e imprime.
 pub fn query_generated_game(conn: &Connection, id: i64) -> Result<()> {
     let mut stmt = conn.prepare(
