@@ -63,11 +63,13 @@ fn main() -> Result<()> {
         Err(_) => panic!("❌ Erro ao carregar histórico da Mega-Sena"),
     };
 
-    for i in 0..100 {
+    let mut jogos_jogaveis_desejados: u8 = 10;
+    while jogos_jogaveis_desejados > 0 {
         let generated_mega_sena = engine::game_generator::generate_mega_sena(&conn)?;
 
         let mut ocorrencias_encontradas = false;
         const QTD_TOLERAVEL: u8 = 4;
+        const PRINT_NAO_JOGAVEL: bool = false;
 
         for h in &historico_mega_sela_list {
             let mut contagem_ocorrencias: u8 = 0;
@@ -78,7 +80,7 @@ fn main() -> Result<()> {
                 }
             }
 
-            if contagem_ocorrencias >= QTD_TOLERAVEL {
+            if PRINT_NAO_JOGAVEL && contagem_ocorrencias >= QTD_TOLERAVEL {
                 ocorrencias_encontradas = true;
 
                 println!(
@@ -104,6 +106,7 @@ fn main() -> Result<()> {
         }
 
         if !ocorrencias_encontradas {
+            jogos_jogaveis_desejados -= 1;
             println!(
                 "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
              ✅ JOGO PERMITIDO\n\
