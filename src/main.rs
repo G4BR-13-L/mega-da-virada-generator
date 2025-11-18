@@ -64,8 +64,9 @@ fn main() -> Result<()> {
     };
 
     let mut jogos_jogaveis_desejados: u8 = 10;
+    let mut jogos_gerados: Vec<HistoricoMegaSena> = Vec::with_capacity(jogos_jogaveis_desejados as usize);
     while jogos_jogaveis_desejados > 0 {
-        let generated_mega_sena = engine::game_generator::generate_mega_sena(&conn)?;
+        let generated_mega_sena: HistoricoMegaSena = engine::game_generator::generate_mega_sena()?;
 
         let mut ocorrencias_encontradas = false;
         const QTD_TOLERAVEL: u8 = 4;
@@ -74,7 +75,7 @@ fn main() -> Result<()> {
         for h in &historico_mega_sela_list {
             let mut contagem_ocorrencias: u8 = 0;
 
-            for numero in generated_mega_sena.jogo.clone() {
+            for numero in generated_mega_sena.set.clone() {
                 if h.set.contains(&numero) {
                     contagem_ocorrencias += 1;
                 }
@@ -107,56 +108,63 @@ fn main() -> Result<()> {
 
         if !ocorrencias_encontradas {
             jogos_jogaveis_desejados -= 1;
-            println!(
-                "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
-             ✅ JOGO PERMITIDO\n\
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
-             O jogo {} pode ser jogado.\n\
-             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
-                generated_mega_sena
-            );
+            jogos_gerados.push(generated_mega_sena.clone());
+            // println!(
+            //     "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
+            //  ✅ JOGO PERMITIDO\n\
+            //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
+            //  O jogo {} pode ser jogado.\n\
+            //  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
+            //     generated_mega_sena
+            // );
         }
     }
 
-    // if false {
-    //     for i in 0..1000000 {
-    //         let game_already_existis: bool =
-    //             match engine::analyser::game_already_exists(&conn, &generated_mega_sena) {
-    //                 Ok(true) => true,
-    //                 Ok(false) => false,
-    //                 Err(e) => {
-    //                     println!("Erro ao verificar: {}", e);
-    //                     false
-    //                 }
-    //             };
+    let mut soma_minima = 346;
+    let mut soma_maxima = 0;
+    for j in historico_mega_sela_list {
+        let soma = j.bola_1.unwrap_or(0) +
+           j.bola_2.unwrap_or(0) +
+          j.bola_3.unwrap_or(0) +
+         j.bola_4.unwrap_or(0) +
+        j.bola_5.unwrap_or(0) +
+       j.bola_6.unwrap_or(0);
+        if soma < soma_minima {
+            soma_minima = soma;
+        }
 
-    //         let repeated_trio: bool =
-    //             match engine::analyser::has_repeated_trio(&conn, &generated_mega_sena) {
-    //                 Ok(true) => true,
-    //                 Ok(false) => false,
-    //                 Err(e) => {
-    //                     println!("Erro ao verificar: {}", e);
-    //                     false
-    //                 }
-    //             };
+        if soma > soma_maxima {
+            soma_maxima = soma;
+        }
+    }
 
-    //         if i % 1000 == 0 {
-    //             println!("...");
-    //             println!("Iteração [ {} ]", i);
-    //             println!("...");
-    //         }
-    //         if game_already_existis || repeated_trio {
-    //             println!("Iteração [ {} ]", i);
-    //             println!("---------------------------------------------");
-    //             println!("Numeros gerados: {}", generated_mega_sena);
 
-    //             println!("O jogo existe na historia?: {}", game_already_existis);
+    println!("\n\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    println!("Soma minima {}", soma_minima);
+    println!("Soma maxima {}", soma_maxima);
+    println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-    //             println!("O jogo possui um trio repetido?: {}", repeated_trio);
-    //             println!("---------------------------------------------");
-    //         }
-    //     }
-    // }
+    let mut jogos_com_soma_valida: Vec<HistoricoMegaSena> = Vec::with_capacity(jogos_gerados.len());
+    for jogo in &jogos_gerados {
+        let mut soma_jogo = 0;
+        for n in &jogo.set {
+            soma_jogo+=n;
+        }
+        if soma_jogo > soma_minima && soma_jogo < soma_maxima {
+            jogos_com_soma_valida.push(jogo.clone());
+        }
+    }
+
+    for jogo in jogos_com_soma_valida {
+        println!(
+            "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
+         ✅ JOGO PERMITIDO\n\
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\
+         O jogo {} pode ser jogado.\n\
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n",
+         jogo
+        );
+    }
 
     Ok(())
 }

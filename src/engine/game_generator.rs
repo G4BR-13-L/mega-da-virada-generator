@@ -1,9 +1,11 @@
+use crate::core::historico_mega_sena::HistoricoMegaSena;
 use crate::mega_sena::MegaSena;
 use anyhow::{Context, Result};
 use chrono::Utc;
 use rand::seq::IteratorRandom;
 use rusqlite::{Connection, OptionalExtension, params};
 use sha3::{Digest, Sha3_256};
+use std::collections::HashSet;
 use std::io::{BufReader, Read};
 use std::path::Path;
 use std::{fs, num};
@@ -40,7 +42,7 @@ pub fn generate_and_store_game(conn: &Connection) -> Result<MegaSena> {
     Ok(jogo)
 }
 
-pub fn generate_mega_sena(conn: &Connection) -> Result<MegaSena> {
+pub fn generate_mega_sena() -> Result<HistoricoMegaSena> {
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<i64> = (1..=60)
         .choose_multiple(&mut rng, 6)
@@ -49,10 +51,26 @@ pub fn generate_mega_sena(conn: &Connection) -> Result<MegaSena> {
         .collect();
     numbers.sort_unstable();
 
-    Ok(MegaSena {
-        id: 2025,
-        jogo: numbers,
-    })
+    let mut set = HashSet::new();
+    for n in &numbers {
+        set.insert(n.clone());
+    }
+
+    Ok(HistoricoMegaSena {
+        id: 0,
+        concurso: 999999,
+        data: String::from("31/12/2025"),
+        bola_1: Option::from(numbers[0]),
+        bola_2: Option::from(numbers[1]),
+        bola_3: Option::from(numbers[2]),
+        bola_4: Option::from(numbers[3]),
+        bola_5: Option::from(numbers[4]),
+        bola_6: Option::from(numbers[5]),
+        inserted_at: String::from("Algum momento"),
+        set: set.clone()
+    }
+    )
+
 }
 
 /// Consulta um jogo gerado pelo id e imprime.
