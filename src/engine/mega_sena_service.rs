@@ -1,5 +1,4 @@
-use crate::core::historico_mega_sena::HistoricoMegaSena;
-use crate::mega_sena::MegaSena;
+use crate::core::mega_sena::MegaSena;
 use anyhow::{Context, Result};
 use chrono::Utc;
 use rand::seq::IteratorRandom;
@@ -9,40 +8,9 @@ use std::collections::HashSet;
 use std::io::{BufReader, Read};
 use std::path::Path;
 use std::{fs, num};
+use uuid::{uuid, Uuid};
 
-pub fn generate_and_store_game(conn: &Connection) -> Result<MegaSena> {
-    let mut rng = rand::thread_rng();
-    let mut numbers: Vec<i64> = (1..=60)
-        .choose_multiple(&mut rng, 6)
-        .into_iter()
-        .map(|n| n as i64)
-        .collect();
-    numbers.sort_unstable();
-
-    conn.execute(
-        "INSERT INTO t_generated_games (n1, n2, n3, n4, n5, n6, created_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        params![
-            numbers[0],
-            numbers[1],
-            numbers[2],
-            numbers[3],
-            numbers[4],
-            numbers[5],
-            Utc::now().naive_utc().to_string()
-        ],
-    )?;
-
-    let last_id = conn.last_insert_rowid();
-    let mut jogo = MegaSena {
-        id: last_id,
-        jogo: numbers.clone(),
-    };
-    println!("Jogo gerado e armazenado (id={}): {:?}", last_id, numbers);
-    Ok(jogo)
-}
-
-pub fn generate_mega_sena() -> Result<HistoricoMegaSena> {
+pub fn generate_mega_sena() -> Result<MegaSena> {
     let mut rng = rand::thread_rng();
     let mut numbers: Vec<i64> = (1..=60)
         .choose_multiple(&mut rng, 6)
@@ -56,7 +24,7 @@ pub fn generate_mega_sena() -> Result<HistoricoMegaSena> {
         set.insert(n.clone());
     }
 
-    Ok(HistoricoMegaSena {
+    Ok(MegaSena {
         id: 0,
         concurso: 999999,
         data: String::from("31/12/2025"),
@@ -67,6 +35,7 @@ pub fn generate_mega_sena() -> Result<HistoricoMegaSena> {
         bola_5: Option::from(numbers[4]),
         bola_6: Option::from(numbers[5]),
         inserted_at: String::from("Algum momento"),
+        generated_by_rust: true,
         set: set.clone()
     }
     )
@@ -109,7 +78,7 @@ pub fn query_generated_game(conn: &Connection, id: i64) -> Result<()> {
 pub fn query_generated_game_in_history(conn: &Connection, game: &MegaSena) -> Result<()> {
     let mut stmt = conn.prepare(
         "SELECT concurso, data, bola_1, bola_2, bola_3, bola_4, bola_5, bola_6
-         FROM t_historico_mega_sena
+         FROM t_mega_sena
          WHERE bola_1 = ?1 AND bola_2 = ?2 AND bola_3 = ?3
            AND bola_4 = ?4 AND bola_5 = ?5 AND bola_6 = ?6",
     )?;
@@ -117,12 +86,12 @@ pub fn query_generated_game_in_history(conn: &Connection, game: &MegaSena) -> Re
     let row_opt = stmt
         .query_row(
             params![
-                game.jogo[0],
-                game.jogo[1],
-                game.jogo[2],
-                game.jogo[3],
-                game.jogo[4],
-                game.jogo[5]
+                game.bola_1,
+                game.bola_2,
+                game.bola_3,
+                game.bola_4,
+                game.bola_5,
+                game.bola_6
             ],
             |row| {
                 Ok((
@@ -148,5 +117,33 @@ pub fn query_generated_game_in_history(conn: &Connection, game: &MegaSena) -> Re
         println!("Jogo inédito! Nenhum registro encontrado no histórico.");
     }
 
+    Ok(())
+}
+
+pub fn save(conn: &mut Connection, mega_sena: MegaSena) -> Result<()> {
+
+    let tx = conn.transaction()?;
+
+    let concurso = Uuid::new_v4().to_string();
+    let data = chrono::Local::now().format("%d/%m/%Y").to_string();
+    let data_typesafe = chrono::Local::now().format("%Y-%m-%d").to_string();
+    let bola_1 = mega_sena.bola_1;
+    let bola_2 = mega_sena.bola_2;
+    let bola_3 = mega_sena.bola_3;
+    let bola_4 = mega_sena.bola_4;
+    let bola_5 = mega_sena.bola_5;
+    let bola_6 = mega_sena.bola_6;
+    let generated_by_rust = mega_sena.generated_by_rust;
+
+    tx.execute(
+        "INSERT INTO t_mega_sena
+            (concurso, data, data_typesafe, bola_1, bola_2, bola_3, bola_4, bola_5, bola_6, generated_by_rust)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+        params![
+            concurso, data, data_typesafe, bola_1, bola_2, bola_3, bola_4, bola_5, bola_6, generated_by_rust
+        ],
+    )?;
+
+    tx.commit()?;
     Ok(())
 }
