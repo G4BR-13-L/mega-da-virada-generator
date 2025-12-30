@@ -1,11 +1,8 @@
 use anyhow::{Context, Result};
-use chrono::Utc;
-use rand::seq::IteratorRandom;
-use rusqlite::{Connection, OptionalExtension, params};
 use sha3::{Digest, Sha3_256};
 use std::io::{BufReader, Read};
 use std::path::Path;
-use std::{fs, num};
+use std::fs;
 
 pub fn sha3_256_of_file(path: &Path) -> Result<String> {
     let file = fs::File::open(path)

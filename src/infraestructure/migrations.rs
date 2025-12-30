@@ -1,11 +1,10 @@
 use crate::shared::sha3;
 use anyhow::{Context, Result};
-use chrono::Utc;
-use rand::seq::IteratorRandom;
 use rusqlite::{Connection, OptionalExtension, params};
-use std::io::{BufReader, Read};
+use std::fs;
 use std::path::Path;
-use std::{fs, num};
+
+const DB_PATH: &str = "mega_sena.db";
 
 pub fn check_migration_table_exists(conn: &Connection) -> Result<bool> {
     let exists: i64 = conn
@@ -31,7 +30,15 @@ pub fn create_migration_table(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
-pub fn run_migrations(conn: &Connection) -> Result<()> {
+pub fn run_migrations() -> Result<()> {
+    let conn = Connection::open(DB_PATH)?;
+
+    println!("Conectado ao SQLite em {}", DB_PATH);
+    if !check_migration_table_exists(&conn)? {
+        println!("Tabela t_migration não existe. Criando...");
+        create_migration_table(&conn)?;
+    }
+
     let migrations_dir = Path::new("./migrations");
     if !migrations_dir.exists() {
         println!("Diretório ./migrations não encontrado — pulando migrations.");

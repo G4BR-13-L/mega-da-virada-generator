@@ -20,6 +20,16 @@ pub struct MegaSena {
     pub generated_by_rust: bool,
 }
 
+impl MegaSena {
+    pub fn soma(&self) -> u16 {
+        self.set.iter().map(|&n| n as u16).sum()
+    }
+
+    pub fn intersecao(&self, other: &MegaSena) -> u8 {
+        self.set.iter().filter(|n| other.set.contains(n)).count() as u8
+    }
+}
+
 impl<'a> TryFrom<&Row<'a>> for MegaSena {
     type Error = rusqlite::Error;
 
