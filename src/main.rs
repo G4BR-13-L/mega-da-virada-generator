@@ -4,15 +4,18 @@ use rusqlite::Connection;
 
 use crate::{
     application::{
-        generator::RandomMegaSenaGenerator, service::MegaSenaService, validator::MegaSenaValidator,
+        generator::RandomMegaSenaGenerator, service::MegaSenaService, statistics, validator::MegaSenaValidator
     },
-    domain::heuristics::SomaRange,
+    domain::heuristics::{FaixaEstatistica, SomaRange},
     infraestructure::{mega_sena_bootstrap, migrations::run_migrations, repository},
 };
 
 const QTD_TOLERAVEL: u8 = 4;
 const QTD_JOGOS_DESEJADOS: u8 = 10;
 const DB_PATH: &str = "mega_sena.db";
+const FAIXA_MIN: i64 = 20;
+const FAIXA_MAX: i64 = 40;
+const K_DESVIO_PADRAO: f64 = 1.5;
 
 pub mod application;
 pub mod domain;
@@ -36,11 +39,19 @@ fn main() -> Result<()> {
 
     let soma_range = SomaRange::new(&historico);
 
+    let faixa_estatistica = statistics::calcular_faixa_estatistica(
+        &historico,
+        FAIXA_MIN,
+        FAIXA_MAX,
+        K_DESVIO_PADRAO,
+    );
+
     let service = MegaSenaService {
         generator: RandomMegaSenaGenerator,
         validator: MegaSenaValidator {
             soma_range,
             tolerancia: QTD_TOLERAVEL,
+            faixa_estatistica
         },
     };
 

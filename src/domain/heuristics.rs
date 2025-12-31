@@ -43,3 +43,21 @@ impl SomaRange {
         soma > self.min && soma < self.max
     }
 }
+
+
+#[derive(Debug, Clone)]
+pub struct FaixaEstatistica {
+    pub min: i64,
+    pub max: i64,
+    pub media: f64,
+    pub desvio_padrao: f64,
+    pub k: f64,
+}
+
+impl FaixaEstatistica {
+    pub fn intervalo_valido(&self) -> (i64, i64) {
+        let inferior = (self.media - self.k * self.desvio_padrao).floor() as i64;
+        let superior = (self.media + self.k * self.desvio_padrao).ceil() as i64;
+        (inferior.max(0), superior.min(6))
+    }
+}
