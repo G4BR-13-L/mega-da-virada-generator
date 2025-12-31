@@ -41,9 +41,9 @@ fn main() -> Result<()> {
 
     let faixa_estatistica = statistics::calcular_faixa_estatistica(
         &historico,
-        20,
-        40,
-        1.5,
+        FAIXA_MIN,
+        FAIXA_MAX,
+        K_DESVIO_PADRAO,
     );
 
     let service = MegaSenaService {
