@@ -1,8 +1,9 @@
-use crate::domain::{heuristics::SomaRange, mega_sena::MegaSena, rules};
+use crate::domain::{heuristics::{FaixaEstatistica, SomaRange}, mega_sena::MegaSena, rules};
 
 pub struct MegaSenaValidator {
     pub soma_range: SomaRange,
     pub tolerancia: u8,
+    pub faixa_estatistica: FaixaEstatistica,
 }
 
 impl MegaSenaValidator {
@@ -12,6 +13,10 @@ impl MegaSenaValidator {
         }
 
         if rules::excede_ocorrencias(jogo, historico, self.tolerancia) {
+            return false;
+        }
+
+        if !rules::respeita_faixa_estatistica(jogo, &self.faixa_estatistica) {
             return false;
         }
 
