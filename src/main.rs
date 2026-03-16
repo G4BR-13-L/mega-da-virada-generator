@@ -11,7 +11,7 @@ use crate::{
 };
 
 const QTD_TOLERAVEL: u8 = 4;
-const QTD_JOGOS_DESEJADOS: u8 = 10;
+const QTD_JOGOS_DESEJADOS: u8 = 20;
 const DB_PATH: &str = "mega_sena.db";
 
 pub mod application;
